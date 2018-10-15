@@ -6,117 +6,162 @@
 
 import React, {Component} from 'react';
 import {
-  Platform,
   StyleSheet,
-  View,
-  Text,
+  Animated,
+  Easing,
+  Image,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' +
-  'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' +
-  'Shake or press menu button for dev menu',
-});
-import Svg, {
-  Circle,
-  Ellipse,
-  G,
-  LinearGradient,
-  RadialGradient,
-  Line,
-  Path,
-  Polygon,
-  Polyline,
-  Rect,
-  Symbol,
-  Use,
-  Defs,
-  Stop
-} from 'react-native-svg';
-// Mx y A r r 0 0 0 x+r-r*cos(α)  y+r*sin(α)  L x+r y z
-export default class App extends Component<{}> {
+export default class App extends Component {
+  // 构造
   constructor(props) {
-    super(props)
+    super(props);
+    // 初始状态
     this.state = {
-      data: []
-    }
-  }
-
-  componentDidMount() {
-    this.getData(80, 60, 40, 9)
-  }
-
-  getData(x, y, r, count) {
-    let data = []
-
-    for (let i = 0; i < count; i++) {
-      let previouslyPoint = (x + r * Math.sin(2 * Math.PI / count * (i))) + " " + (y - r * Math.cos(2 * Math.PI / count * (i)));
-      let nextPoint = (x + r * Math.sin(2 * Math.PI / count * (i + 1))) + " " + (y - r * Math.cos(2 * Math.PI / count * (i + 1)));
-      let cell = {}
-      cell.point = 'M ' + x + " " + y + " L " + previouslyPoint + ' A ' + r + " " + r + " 0 0 1 " + nextPoint + " Z";
-      cell.color = '#' + i + i + i + i + i + i;
-      console.log(cell)
-      data.push(cell)
-    }
-    this.setState({
-      data: data
-    })
+      bounceValue: new Animated.Value(1),
+      translateValue: new Animated.ValueXY({x: 0, y: 0}), // 二维坐标
+      bounceValue_1: new Animated.Value(0.3),
+      translateValue_1: new Animated.ValueXY({x: 400, y: -300}), // 二维坐标
+    };
   }
 
   render() {
     return (
-      <Svg
-        height="200"
-        width="200"
-      >
-        <G
-          id={'shape'}
-          rotation="-30"
-          origin="80, 60"
-        >
-          {this.state.data.map((d, index) => {
-            return <Path
-              key={index}
-              d={d.point}
-              stroke="#fff"
-              strokeWidth="1"
-              fill={d.color} onPress={() => {
-              alert('我是大饼' + index)
-            }}/>
-          })}
-          <Circle
-            cx="80"   //中心点x
-            cy="60"   //中心点y
-            r="15"    //半径
-            fill="green"   //填充颜色
-            stroke="#fff"   //边框颜色
-            strokeWidth="3"   //边框宽度
-            onPress={() => {
-              alert('我是中心圆')
-            }}
-          />
-        </G>
-      </Svg>
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',}}>
+
+        <Animated.View style={{
+          position: 'absolute',
+          left: 20,
+          transform: [  // scale, scaleX, scaleY, translateX, translateY, rotate, rotateX, rotateY, rotateZ
+            {scale: this.state.bounceValue},  // 缩放
+            {translateX: this.state.translateValue.x}, // x轴移动
+            {translateY: this.state.translateValue.y}, // y轴移动*/
+          ],
+        }}>
+          <TouchableOpacity onPress={() => {
+            this.initAnimated()
+          }}>
+            <Image                         // 可选的基本组件类型: Image, Text, View(可以包裹任意子View)
+              source={{uri: 'http://i.imgur.com/XMKOH81.jpg'}}
+              style={{
+                width: 200, height: 200, borderRadius: 100,
+              }}
+            />
+          </TouchableOpacity>
+        </Animated.View>
+        <Animated.View style={{
+          position: 'absolute',
+          left: 20,
+          transform: [  // scale, scaleX, scaleY, translateX, translateY, rotate, rotateX, rotateY, rotateZ
+            {scale: this.state.bounceValue_1},  // 缩放
+            {translateX: this.state.translateValue_1.x}, // x轴移动
+            {translateY: this.state.translateValue_1.y}, // y轴移动
+          ],
+        }}>
+          <TouchableOpacity onPress={() => {
+            this.startAnimation()
+          }}>
+            <Image                         // 可选的基本组件类型: Image, Text, View(可以包裹任意子View)
+              source={{uri: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1539333844976&di=e3ea64cbf0f87c2350eb0eca077aaf7d&imgtype=0&src=http%3A%2F%2Fm.itunes123.com%2Fuploadfiles%2F48138b5750bd14457b1ee8a8dd0b0ac4.jpg'}}
+              style={{
+                width: 200, height: 200, borderRadius: 100,
+
+              }}/>
+          </TouchableOpacity>
+        </Animated.View>
+
+      </View>
+
     );
   }
+
+  initAnimated() {
+
+    Animated.parallel([  //  组合动画 parallel（同时执行）、sequence（顺序执行）、stagger（错峰，其实就是插入了delay的parrllel）和delay（延迟）
+
+        Animated.spring( //  基础的单次弹跳物理模型
+          this.state.bounceValue_1,
+          {
+            toValue: 0.3,
+            friction: 1000, // 摩擦力，默认为7.
+            tension: 40, // 张力，默认40。
+          }
+        ),
+        Animated.timing( // 以一个初始速度开始并且逐渐减慢停止。  S=vt-（at^2）/2   v=v - at
+          this.state.translateValue_1,
+          {
+            toValue: {x: 400, y: -300},
+            easing: Easing.elastic(1),
+            duration:1000
+          }
+        ),
+
+        Animated.spring( //  基础的单次弹跳物理模型
+          this.state.bounceValue,
+          {
+            toValue: 1,
+            friction: 1000, // 摩擦力，默认为7.
+            tension: 40, // 张力，默认40。
+          }
+        ),
+        Animated.timing( // 以一个初始速度开始并且逐渐减慢停止。  S=vt-（at^2）/2   v=v - at
+          this.state.translateValue,
+          {
+            toValue: {x: 0, y: 0},
+            easing: Easing.elastic(1),
+            duration:1000
+
+          }
+        ),
+      ]
+    ).start(); // 执行动画
+
+
+  }
+
+  startAnimation() {
+
+    Animated.parallel([  //  组合动画 parallel（同时执行）、sequence（顺序执行）、stagger（错峰，其实就是插入了delay的parrllel）和delay（延迟）
+
+        Animated.spring( //  基础的单次弹跳物理模型
+          this.state.bounceValue,
+          {
+            toValue: 0.3,
+            friction: 1000, // 摩擦力，默认为7.
+            tension: 40, // 张力，默认40。
+          }
+        ),
+        Animated.timing( // 以一个初始速度开始并且逐渐减慢停止。  S=vt-（at^2）/2   v=v - at
+          this.state.translateValue,
+          {
+            toValue: {x: 400, y: -300},
+            easing: Easing.elastic(1),
+            duration:1000
+          }
+        ),
+
+        Animated.spring( //  基础的单次弹跳物理模型
+          this.state.bounceValue_1,
+          {
+            toValue: 1,
+            friction: 1000, // 摩擦力，默认为7.
+            tension: 40, // 张力，默认40。
+          }
+        ),
+        Animated.timing( // 以一个初始速度开始并且逐渐减慢停止。  S=vt-（at^2）/2   v=v - at
+          this.state.translateValue_1,
+          {
+            toValue: {x: 0, y: 0},
+            easing: Easing.elastic(1),
+            duration:1000
+          }
+        ),
+      ]
+    ).start(); // 执行动画
+  }
+
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});
+const styles = StyleSheet.create({});
