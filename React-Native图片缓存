@@ -1,0 +1,52 @@
+1. react-native-fetch-blob 将图片存在本地的一个东西
+
+
+
+2. react-native-img-cache 自动缓存的一个东西
+
+上面装好后 就可以使用啦
+
+import {CachedImage} from "react-native-img-cache";
+
+<CachedImage source={{ uri: "https://i.ytimg.com/vi/yaqe1qesQ8c/maxresdefault.jpg" }} />
+
+
+
+如果想让图片有种加载效果
+
+import Image from 'react-native-image-progress';
+
+import ProgressBar from 'react-native-progress/Bar';
+
+
+
+最后使用
+
+import {CustomCachedImage} from "react-native-img-cache";
+
+
+
+import Image from 'react-native-image-progress';
+
+import ProgressBar from 'react-native-progress/Bar';
+
+
+
+<CustomCachedImage
+
+  component={Image}
+
+  source={{ uri: 'http://loremflickr.com/640/480/dog' }}
+
+  indicator={ProgressBar}
+
+  style={{
+
+    width: 320,
+
+    height: 240,
+
+  }}/>
+
+
+传送门：https://github.com/wcandillon/react-native-img-cache
